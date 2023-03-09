@@ -1,34 +1,135 @@
-'''#Import the required libraries
-from tkinter import *
-
-#Create an instance of tkinter frame
-win= Tk()
-
-#Set the geometry of frame
-win.geometry("600x250")
-
-#Create a frame
-frame = Frame(win)
-frame.pack(side="top", expand=True, fill="both")
-
-#Create a text label
-Label(frame,text="Enter the Password", font=('Helvetica',20)).pack(pady=20)
-
-def clear_frame():
-   for widgets in frame.winfo_children():
-      widgets.destroy()
-
-#Create a button to close the window
-Button(frame, text="Clear", font=('Helvetica bold', 10), command=
-clear_frame).pack(pady=20)
-
-win.mainloop()
-'''
 import tkinter as tk
+ 
+#stworzenie okna
+window = tk.Tk()
+window.title('Metody numeryczne - zadanie 1')
+window.geometry('500x400')
 
-root = tk.Tk()
-test = tk.Label(root, text="Red", bg="red", fg="white")
-test.pack(ipadx=30, ipady=6)
-test = tk.Label(root, text="Purple", bg="purple", fg="white")
-test.pack(ipadx=8, ipady=12)
-tk.mainloop()
+l = tk.Label(window, bg='white', width=50, text='Wybierz funkcję', font=('Helvetica bold', 14))
+l.pack()
+
+def wspolczynniki_wielomianu():
+    clear_window()
+    l = tk.Label(window, bg='white', width=50, text='Podaj współczynniki', font=('Helvetica bold', 14))
+    l.pack()
+    frame = tk.Frame(window, pady=5)
+    ws6 = tk.Entry(frame, width=4,).grid(row=0, column=0, ipady=1)
+    tk.Label(frame, padx=1, text="x^6 +").grid(row=0, column=1)
+    ws5 = tk.Entry(frame, width=4).grid(row=0, column=2, ipady=1)
+    tk.Label(frame, text="x^5 +").grid(row=0, column=3)
+    ws4 = tk.Entry(frame, width=4).grid(row=0, column=4, ipady=1)
+    tk.Label(frame, text="x^4 +").grid(row=0, column=5)
+    ws3 = tk.Entry(frame, width=4).grid(row=0, column=6, ipady=1)
+    tk.Label(frame, text="x^3 +").grid(row=0, column=7)
+    ws2 = tk.Entry(frame, width=4).grid(row=0, column=8, ipady=1)
+    tk.Label(frame, text="x^2 +").grid(row=0, column=9)
+    ws1 = tk.Entry(frame, width=4).grid(row=0, column=10, ipady=1)
+    tk.Label(frame, text="x +").grid(row=0, column=11)
+    ws0 = tk.Entry(frame, width=4).grid(row=0, column=12)
+    frame.pack()
+    button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command= lambda: zatwierdz_stopien())
+    button_zatwierdz_stopien.pack(pady=10)
+
+def zatwierdz_stopien():
+    stopien = '20'
+    try:
+        int_stopien = int(stopien)
+        if (int_stopien >= 0 and int_stopien <= 6):
+            wspolczynniki_wielomianu(int_stopien)
+        else:
+            l3 = tk.Label(window, fg='red', width=50, text= stopien + ' nie jest z przediału 0 - 6')
+            l3.pack()
+    except ValueError:
+        l3 = tk.Label(window, fg='red', width=50, text='błedny stopien')
+        l3.pack()
+
+def stopien_wielomianu():
+    clear_window()
+    l = tk.Label(window, bg='white', width=50, text='Podaj stopien wielomianu', font=('Helvetica bold', 14))
+    l.pack()
+    l2 = tk.Label(window, bg='white', width=50, text='zakres: 0 - 6')
+    l2.pack()
+    stopien = tk.Entry(window, width=10)
+    stopien.pack()
+    button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command= lambda: zatwierdz_stopien(stopien.get()))
+    button_zatwierdz_stopien.pack(pady=10)
+
+def wspolczynniki_wykladnicza():
+    clear_window()
+    l = tk.Label(window, bg='white', width=50, text='Podaj współczynnik i potęgę x', font=('Helvetica bold', 14))
+    l.pack()
+    frame = tk.Frame(window, pady=5)
+    wsx = tk.Entry(frame, width=4,).grid(row=0, column=0, ipady=1)
+    tk.Label(frame, padx=1, text="x^").grid(row=0, column=1)
+    potega = tk.Entry(frame, width=4).grid(row=0, column=2, ipady=1)
+    frame.pack()
+    button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command= lambda: zatwierdz_stopien())
+    button_zatwierdz_stopien.pack(pady=10)
+
+def wspolczynniki_trygonometryczna():
+    clear_window()
+
+def wybor_trygonometryczna():
+    clear_window()
+
+
+def clear_window():
+    for widgets in window.winfo_children():
+        widgets.destroy()
+
+def wpisanie_funkcji(nazwa):
+    if (nazwa == 'wielomian'):
+        
+        window.title('wielomian')
+    else:
+        return
+    
+def zatwierdz_wybor_funkcji():
+    if (button_zatwierdz['state'] == 'normal'):
+        if (var_wielomian.get() == 1):
+            window.title('wielomian')
+            wspolczynniki_wielomianu()
+        elif (var_wykladnicza.get() == 1):
+            window.title('funkcja wykladnicza')
+            wspolczynniki_wykladnicza()
+        elif (var_trygonometryczna.get() == 1):
+            window.title('funkcja trygonometryczna')
+        elif (var_zlozenie.get() == 1):
+            window.title('zlozenie')
+    else:
+        return
+ 
+def print_selection():
+    button_zatwierdz['state'] = 'normal'
+    if (var_wielomian.get() == 0) & (var_wykladnicza.get() == 0) & (var_trygonometryczna.get() == 0) & (var_zlozenie.get() == 0):
+         l.config(text='Wybierz funkcję', fg='black')
+         button_zatwierdz['state'] = 'disabled'
+    elif (var_wielomian.get() == 1) & (var_wykladnicza.get() == 0) & (var_trygonometryczna.get() == 0) & (var_zlozenie.get() == 0):
+        l.config(text='Wybrano wielomian', fg='black')
+    elif (var_wielomian.get() == 0) & (var_wykladnicza.get() == 1) & (var_trygonometryczna.get() == 0) & (var_zlozenie.get() == 0):
+        l.config(text='Wybrano funkcję wykładniczą', fg='black')
+    elif (var_wielomian.get() == 0) & (var_wykladnicza.get() == 0) & (var_trygonometryczna.get() == 1) & (var_zlozenie.get() == 0):
+        l.config(text='Wybrano funkcję trygnonometryczną')
+    elif (var_wielomian.get() == 0) & (var_wykladnicza.get() == 0) & (var_trygonometryczna.get() == 0) & (var_zlozenie.get() == 1):
+        l.config(text='Wybrano złożenie funkcji', fg='black')
+    else:
+        button_zatwierdz['state'] = 'disabled'
+        l.config(text='Wybierz jedną opcję!', fg='red')
+ 
+var_wielomian = tk.IntVar()
+var_wykladnicza = tk.IntVar()
+var_trygonometryczna = tk.IntVar()
+var_zlozenie = tk.IntVar()
+check_wielomian = tk.Checkbutton(window, text='wielomian', variable=var_wielomian, onvalue=1, offvalue=0, command=print_selection)
+check_wielomian.pack(anchor='w', padx=(10,10))
+check_wykladnicza = tk.Checkbutton(window, text='wykładnicza', variable=var_wykladnicza, onvalue=1, offvalue=0, command=print_selection)
+check_wykladnicza.pack(anchor='w', padx=(10,10))
+check_trygonometryczna = tk.Checkbutton(window, text='trygonometryczna', variable=var_trygonometryczna, onvalue=1, offvalue=0, command=print_selection)
+check_trygonometryczna.pack(anchor='w', padx=(10,10))
+check_zlozenie = tk.Checkbutton(window, text='złozenie', variable=var_zlozenie, onvalue=1, offvalue=0, command=print_selection)
+check_zlozenie.pack(anchor='w', padx=(10,10))
+
+button_zatwierdz = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), state='disabled', command=zatwierdz_wybor_funkcji)
+button_zatwierdz.pack(pady=10)
+ 
+window.mainloop()
