@@ -30,3 +30,5 @@ def stopien_wielomianu():
 
 
     '''
+
+#while((var_sinus.get() == 0 and var_cosinus.get()==0) or (var_sinus.get() == 1 and var_cosinus.get()==1)):

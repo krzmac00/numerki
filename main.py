@@ -1,12 +1,6 @@
 import tkinter as tk
  
-#stworzenie okna
-window = tk.Tk()
-window.title('Metody numeryczne - zadanie 1')
-window.geometry('500x400')
-
-l = tk.Label(window, bg='white', width=50, text='Wybierz funkcję', font=('Helvetica bold', 14))
-l.pack()
+#WIELOMIAN
 
 def wspolczynniki_wielomianu():
     clear_window()
@@ -54,6 +48,8 @@ def stopien_wielomianu():
     button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command= lambda: zatwierdz_stopien(stopien.get()))
     button_zatwierdz_stopien.pack(pady=10)
 
+#FUNKCJA WYKŁADNICZA
+
 def wspolczynniki_wykladnicza():
     clear_window()
     l = tk.Label(window, bg='white', width=50, text='Podaj współczynnik i potęgę x', font=('Helvetica bold', 14))
@@ -66,11 +62,38 @@ def wspolczynniki_wykladnicza():
     button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command= lambda: zatwierdz_stopien())
     button_zatwierdz_stopien.pack(pady=10)
 
+#FUNKCJA TRYGONOMETRYCZNA
+
+def wprowadz_sinus():
+    clear_window()
+
+def wprowadz_cosinus():
+    clear_window()
+
+def zatwierdz_trygonometryczna(var_sinus, var_cosinus):
+    if((var_sinus == 0 and var_cosinus == 0) or (var_sinus == 1 and var_cosinus == 1)):
+        return
+    elif(var_sinus == 1):
+        wprowadz_sinus()
+    else:
+        wprowadz_cosinus()
+
+
 def wspolczynniki_trygonometryczna():
     clear_window()
 
 def wybor_trygonometryczna():
     clear_window()
+    l = tk.Label(window, bg='white', width=50, text='Wybierz funkcję', font=('Helvetica bold', 14))
+    l.pack()
+    var_sinus = tk.IntVar()
+    var_cosinus = tk.IntVar()
+    check_sinus = tk.Checkbutton(window, text='sinus', variable=var_sinus, onvalue=1, offvalue=0)
+    check_sinus.pack(anchor='w', padx=(10,10))
+    check_cosinus = tk.Checkbutton(window, text='cosinus', variable=var_cosinus, onvalue=1, offvalue=0)
+    check_cosinus.pack(anchor='w', padx=(10,10))    
+    button_zatwierdz_tryg = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command=lambda: zatwierdz_trygonometryczna(var_sinus.get(), var_cosinus.get()))
+    button_zatwierdz_tryg.pack(pady=10)
 
 
 def clear_window():
@@ -94,6 +117,7 @@ def zatwierdz_wybor_funkcji():
             wspolczynniki_wykladnicza()
         elif (var_trygonometryczna.get() == 1):
             window.title('funkcja trygonometryczna')
+            wybor_trygonometryczna()
         elif (var_zlozenie.get() == 1):
             window.title('zlozenie')
     else:
@@ -115,7 +139,16 @@ def print_selection():
     else:
         button_zatwierdz['state'] = 'disabled'
         l.config(text='Wybierz jedną opcję!', fg='red')
- 
+
+
+#stworzenie okna
+window = tk.Tk()
+window.title('Metody numeryczne - zadanie 1')
+window.geometry('500x400')
+
+l = tk.Label(window, bg='white', width=50, text='Wybierz funkcję', font=('Helvetica bold', 14))
+l.pack()
+
 var_wielomian = tk.IntVar()
 var_wykladnicza = tk.IntVar()
 var_trygonometryczna = tk.IntVar()
