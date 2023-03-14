@@ -217,7 +217,7 @@ def wybor_kryterium_wykladnicza(wsx, potega, poczatek, koniec):
                                         wsx, potega, poczatek, koniec, var_iteracje.get(), var_dokladnosc.get(), iteracje.get(), dokladnosc.get()))
     button_zatwierdz_wybor.pack(pady=10)
 
-def zatwierdz_przedzial_wielomian(wsx, potega, poczatek, koniec):
+def zatwierdz_przedzial_wykladnicza(wsx, potega, poczatek, koniec):
     try:
         float_poczatek = float(poczatek)
     except ValueError:
@@ -234,7 +234,7 @@ def zatwierdz_przedzial_wielomian(wsx, potega, poczatek, koniec):
     else:
        if(float_poczatek > float_koniec):
            float_poczatek, float_koniec = float_koniec, float_poczatek
-       wybor_kryterium_wielomian(wsx, potega, poczatek, koniec)
+       wybor_kryterium_wykladnicza(wsx, potega, poczatek, koniec)
 
 def podaj_przedzial_wykladnicza(wsx, potega):
     clear_window()
@@ -284,7 +284,100 @@ def wspolczynniki_wykladnicza():
 
 #FUNKCJA TRYGONOMETRYCZNA
 
-def zatwierdz_wspolczynniki_trygonometryczna(wsx, wsf):
+def oblicz_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec, var_iteracje, var_dokladnosc, iteracje, dokladnosc):
+    return
+
+def zatwierdz_wybor_kryterium_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec, var_iteracje, var_dokladnosc, iteracje, dokladnosc):
+    if((var_iteracje == 0 and var_dokladnosc == 0) or (var_iteracje == 1 and var_dokladnosc == 1)):
+        l = tk.Label(window, fg='red', width=50, text='Wybierz jedno kryterium!')
+        l.pack()
+    elif(var_iteracje == 1):
+        try:
+            int_iteracje = int(iteracje)
+            if(int_iteracje <= 0):
+                raise ValueError("ValueError")
+            oblicz_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec, int_iteracje, 0)
+        except ValueError:
+            lp = tk.Label(window, fg='red', width=50, text='Podaj wartosc calkowiotliczbowa większą od zera!')
+            lp.pack()
+    else:
+        try:
+            float_dokladnosc = float(dokladnosc)
+            if(float_dokladnosc <= 0):
+                raise ValueError("ValueError")
+            oblicz_wielomian(funkcja, wsx, wsf, poczatek, koniec, 0, float_dokladnosc)
+        except ValueError:
+            lp = tk.Label(window, fg='red', width=50, text='Podaj wartosc zmiennoprzecinkową większą od zera!')
+            lp.pack()
+
+def wybor_kryterium_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec):
+    clear_window()
+    l = tk.Label(window, bg='white', width=50, text='Wybierz kryterium zatrzymania', font=('Helvetica bold', 14))
+    l.pack()
+    var_iteracje = tk.IntVar()
+    var_dokladnosc = tk.IntVar()
+    f = tk.Frame(window, pady=5)
+    check_iteracje = tk.Checkbutton(f, text='liczba iteracji:', variable=var_iteracje, onvalue=1, offvalue=0)
+    check_iteracje.grid(row=0, column=0, padx=(10,10))
+    iteracje = tk.Entry(f, width=4)
+    iteracje.grid(row=0, column=1)
+    check_dokladnosc = tk.Checkbutton(f, text='dokladnosc:', variable=var_dokladnosc, onvalue=1, offvalue=0)
+    check_dokladnosc.grid(row=1, column=0, padx=(10,10))
+    dokladnosc = tk.Entry(f, width=4)
+    dokladnosc.grid(row=1, column=1)
+    f.pack(anchor='w')
+    button_zatwierdz_wybor = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12),
+                                        command=lambda: zatwierdz_wybor_kryterium_trygonometryczna(
+                                        funkcja, wsx, wsf, poczatek, koniec, var_iteracje.get(), var_dokladnosc.get(), iteracje.get(), dokladnosc.get()))
+    button_zatwierdz_wybor.pack(pady=10)
+
+def zatwierdz_przedzial_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec):
+    try:
+        float_poczatek = float(poczatek)
+    except ValueError:
+        lp = tk.Label(window, fg='red', width=50, text='podaj wartosc float, separatorem musi być kropka.')
+        lp.pack()
+    try:
+        float_koniec = float(koniec)
+    except ValueError:
+        lk = tk.Label(window, fg='red', width=50, text='podaj wartosc float, separatorem musi być kropka.')
+        lk.pack()
+    if(funkcja == "sinus"):
+        if (mat.sin(wsx*float_poczatek) * mat.sin(wsx*float_koniec)) > 0:
+            l = tk.Label(window, fg='red', width=50, text='BRAK miejsca zerowego w podanym przedziale - PODAJ INNY PRZEDZIAŁ')
+            l.pack()
+        else:
+            if(float_poczatek > float_koniec):
+                float_poczatek, float_koniec = float_koniec, float_poczatek
+            wybor_kryterium_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec)
+    else:
+        if (mat.cos(wsx*float_poczatek) * mat.cos(wsx*float_koniec)) > 0:
+            l = tk.Label(window, fg='red', width=50, text='BRAK miejsca zerowego w podanym przedziale - PODAJ INNY PRZEDZIAŁ')
+            l.pack()
+        else:
+            if(float_poczatek > float_koniec):
+                float_poczatek, float_koniec = float_koniec, float_poczatek
+            wybor_kryterium_trygonometryczna(funkcja, wsx, wsf, poczatek, koniec)
+
+def podaj_przedzial_trygonometryczna(funkcja, wsx, wsf):
+    clear_window()
+    l = tk.Label(window, bg='white', width=50, text='Podaj granice przedziału', font=('Helvetica bold', 14))
+    l.pack()
+    fpoczatek = tk.Frame(window, pady=5)
+    tk.Label(fpoczatek, padx=1, text="Początek przedziału").grid(row=0, column=0)
+    poczatek = tk.Entry(fpoczatek, width=4)
+    poczatek.grid(row=0, column=1, ipady=1)
+    fpoczatek.pack()
+    fkoniec = tk.Frame(window, pady=5)
+    tk.Label(fkoniec, padx=1, text="Koniec przedziału").grid(row=0, column=0)
+    koniec = tk.Entry(fkoniec, width=4)
+    koniec.grid(row=0, column=1, ipady=1)
+    fkoniec.pack()
+    button_zatwierdz_przedzial_wielomian = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), 
+                                                     command= lambda: zatwierdz_przedzial_trygonometryczna(funkcja, wsx, wsf, poczatek.get(), koniec.get()))
+    button_zatwierdz_przedzial_wielomian.pack(pady=10)
+
+def zatwierdz_wspolczynniki_trygonometryczna(funkcja, wsx, wsf):
     try:
         float_wsf = float(wsf)
         if (float_wsf != 0):
@@ -323,7 +416,8 @@ def wprowadz_trygonometryczna(funkcja):
     wsx.grid(row=0, column=2, ipady=1)
     tk.Label(frame, padx=1, text="x)").grid(row=0, column=3)
     frame.pack()
-    button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12), command= lambda: zatwierdz_wspolczynniki_trygonometryczna(wsf.get(),wsx.get()))
+    button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12),
+                                         command= lambda: zatwierdz_wspolczynniki_trygonometryczna(funkcja, wsf.get(),wsx.get()))
     button_zatwierdz_stopien.pack(pady=10)
 
 
