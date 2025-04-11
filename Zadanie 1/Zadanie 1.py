@@ -12,6 +12,7 @@ class Funkcja(ABC):
     @abstractmethod
     def wartos_w_punkcie_x(self, x):
         pass
+
     @abstractmethod
     def get_nazwa(self):
         pass
@@ -93,7 +94,10 @@ class Cosinus(Trygonometryczna):
     def get_nazwa(self):
         return "f(x) = " + str(self.wsf) + "cos(" + str(self.wsx) + ")"
 
+#################################################################### METODA BISEKCJI #####################################################################
+
 def bisekcja_iteracje(funkcja: Funkcja, a: float, b: float, iteracje: int):
+    poprzedni_srodek = 0.0
     for i in range(iteracje):
         srodek = (a + b)/2.0
         if(funkcja.wartos_w_punkcie_x(srodek) == 0.0):
@@ -102,13 +106,18 @@ def bisekcja_iteracje(funkcja: Funkcja, a: float, b: float, iteracje: int):
             b = srodek
         else:
             a = srodek
-    return srodek
+        dokladnosc = np.abs(srodek - poprzedni_srodek)
+        poprzedni_srodek = srodek
+    return srodek, iteracje, dokladnosc
 
 def bisekcja_dokladnosc(funkcja: Funkcja, a: float, b: float, epsilon: float):
     poprzedni_srodek = 0.0
+    iteracje = 0
     while(True):
+        iteracje += 1
         srodek = (a + b)/2.0
-        if(np.abs((srodek - poprzedni_srodek)) < epsilon):
+        dokladnosc = np.abs(srodek - poprzedni_srodek)
+        if(dokladnosc < epsilon and iteracje > 1):
             break
         if(funkcja.wartos_w_punkcie_x(srodek) == 0.0):
             break
@@ -117,9 +126,12 @@ def bisekcja_dokladnosc(funkcja: Funkcja, a: float, b: float, epsilon: float):
         else:
             a = srodek
         poprzedni_srodek = srodek
-    return srodek
+    return srodek, iteracje, dokladnosc
+
+################################################################## METODA REGULA FALSI ###################################################################
 
 def falsi_iteracje(funkcja: Funkcja, a: float, b: float, iteracje: int):
+    poprzedni_x = 0.0
     for i in range(iteracje):
         x = a - funkcja.wartos_w_punkcie_x(a) * (b - a)/(funkcja.wartos_w_punkcie_x(b) - funkcja.wartos_w_punkcie_x(a))
         if(funkcja.wartos_w_punkcie_x(x) == 0.0):
@@ -128,13 +140,18 @@ def falsi_iteracje(funkcja: Funkcja, a: float, b: float, iteracje: int):
             b = x
         else:
             a = x
-    return x
+        dokladnosc = np.abs(np.abs((x - poprzedni_x)))
+        poprzedni_x = x
+    return x, iteracje, dokladnosc
 
 def falsi_dokladnosc(funkcja: Funkcja, a: float, b: float, epsilon: float):
     poprzedni_x = 0.0
+    iteracje = 0
     while(True):
+        iteracje += 1
         x = a - funkcja.wartos_w_punkcie_x(a) * (b - a)/(funkcja.wartos_w_punkcie_x(b) - funkcja.wartos_w_punkcie_x(a))
-        if(np.abs((x - poprzedni_x)) < epsilon):
+        dokladnosc = np.abs(np.abs((x - poprzedni_x)))
+        if(dokladnosc < epsilon and iteracje > 1):
             break
         if(funkcja.wartos_w_punkcie_x(x) == 0.0):
             break
@@ -143,7 +160,7 @@ def falsi_dokladnosc(funkcja: Funkcja, a: float, b: float, epsilon: float):
         else:
             a = x
         poprzedni_x = x
-    return x
+    return x, iteracje, dokladnosc
 
 ############################################################ POBIERANIE DANYCH OD UŻYTKOWNIKA ############################################################
 
@@ -239,8 +256,10 @@ def zatwierdz_wspolczynniki_wykladnicza(wsx, przesuniecie):
         if (float_wsx == 0):
             raise ValueError("ValueError")
         float_przesuniecie = float(przesuniecie)
-        if (float_przesuniecie == 0):
-            raise ValueError("ValueError")
+        if (float_przesuniecie <= 0):
+            lf = tk.Label(window, fg='red', width=80, text='Podaj wartość zmiennoprzecinkową float większą od zera, separatorem musi być kropka.')
+            lf.pack()
+            return
         wykladnicza = Wykladnicza(float_wsx, float_przesuniecie)
         podaj_przedzial(wykladnicza)
     except ValueError:
@@ -298,7 +317,7 @@ def wspolczynniki_trygonometryczna(nazwa_funkcji):
     tk.Label(frame, padx=1, text="x)").grid(row=0, column=3)
     frame.pack()
     button_zatwierdz_stopien = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12),
-                                         command= lambda: zatwierdz_wspolczynniki_trygonometryczna(nazwa_funkcji, wsf.get(),wsx.get()))
+                                         command= lambda: zatwierdz_wspolczynniki_trygonometryczna(nazwa_funkcji, wsx.get(),wsf.get()))
     button_zatwierdz_stopien.pack(pady=10)
 
 
@@ -325,7 +344,9 @@ def wybor_trygonometryczna():
                                       command=lambda: zatwierdz_trygonometryczna(var_sinus.get(), var_cosinus.get()))
     button_zatwierdz_tryg.pack(pady=10)
 
-#METODY WSPÓLNE
+###################################################################### METODY WSPÓLNE ####################################################################
+
+#WYNIKI
 
 def wyswietl_wyniki(funkcja: Funkcja, poczatek: float, koniec: float, iteracje: int, dokladnosc: float):
     clear_window()
@@ -335,15 +356,21 @@ def wyswietl_wyniki(funkcja: Funkcja, poczatek: float, koniec: float, iteracje: 
     if(iteracje == 0):
         kryterium_zatrzymania = tk.Label(f1, font=('Helvetica', 10), text='Kryterium zatrzymania - dokładność: ')
         kryterium_zatrzymania_wartosc = tk.Label(f1, font=('Helvetica bold', 10), text=str(dokladnosc))
-        x0_b = bisekcja_dokladnosc(funkcja, poczatek, koniec, dokladnosc)
-        x0_f = falsi_dokladnosc(funkcja, poczatek, koniec, dokladnosc)
-        
+        x0_b = bisekcja_dokladnosc(funkcja, poczatek, koniec, dokladnosc)[0]
+        x0_f = falsi_dokladnosc(funkcja, poczatek, koniec, dokladnosc)[0]
+        iteracje_bisekcja = bisekcja_dokladnosc(funkcja, poczatek, koniec, dokladnosc)[1]
+        iteracje_falsi = falsi_dokladnosc(funkcja, poczatek, koniec, dokladnosc)[1]
+        dodatkowy_label_bisekcja = tk.Label(f_b, font=('Helvetica bold', 10), text="Iteracje = "+ str(iteracje_bisekcja))
+        dodatkowy_label_falsi = tk.Label(f_f, font=('Helvetica bold', 10), text="Iteracje = "+ str(iteracje_falsi))
     else:
         kryterium_zatrzymania = tk.Label(f1, font=('Helvetica', 10), text='Kryterium zatrzymania - liczba iteracji: ')
         kryterium_zatrzymania_wartosc = tk.Label(f1, font=('Helvetica bold', 10), text=str(iteracje))
-        x0_b = bisekcja_iteracje(funkcja, poczatek, koniec, iteracje)
-        x0_f = falsi_iteracje(funkcja, poczatek, koniec, iteracje)
-    
+        x0_b = bisekcja_iteracje(funkcja, poczatek, koniec, iteracje)[0]
+        x0_f = falsi_iteracje(funkcja, poczatek, koniec, iteracje)[0]
+        dokladnosc_bisekcja = bisekcja_iteracje(funkcja, poczatek, koniec, iteracje)[2]
+        dokladnosc_falsi = falsi_iteracje(funkcja, poczatek, koniec, iteracje)[2]
+        dodatkowy_label_bisekcja = tk.Label(f_b, font=('Helvetica bold', 10), text="Dokladnosc = "+ str(dokladnosc_bisekcja))
+        dodatkowy_label_falsi = tk.Label(f_f, font=('Helvetica bold', 10), text="Dokladnosc = "+ str(dokladnosc_falsi))
     
     l = tk.Label(window, bg='white', width=50, text='WYNIKI', font=('Helvetica bold', 14))
     l.pack()
@@ -356,20 +383,25 @@ def wyswietl_wyniki(funkcja: Funkcja, poczatek: float, koniec: float, iteracje: 
     tk.Label(f_b, text='Miejsce zerowe: ').grid(row=0,column=0)
     x0b_wyswietl = tk.Label(f_b, width=20, text=str(x0_b))
     x0b_wyswietl.grid(row=0,column=1)
+    dodatkowy_label_bisekcja.grid(row=1,column=0)
     f_b.pack()
+    
 
     l_falsi = tk.Label(window, bg='white', width=100, text='METODA REGULA FALSI', font=('Helvetica bold', 11))
     l_falsi.pack()
     tk.Label(f_f, text='Miejsce zerowe: ').grid(row=0,column=0)
     x0f_wyswietl = tk.Label(f_f, width=20, text=str(x0_f))
     x0f_wyswietl.grid(row=0,column=1)
+    dodatkowy_label_falsi.grid(row=1,column=0)
     f_f.pack()
+    
 
     button_wyjdz = tk.Button(window, text='WYJDŹ', font=('Helvetica bold', 12),
                                         command=window.destroy)
     button_wyjdz.pack(pady=10)
 
 #WYKRES PYPLOT
+    przedzial = "\n Przedział: <" + str(poczatek) + "; " + str(koniec) + ">"
     xpoints = np.arange(poczatek, koniec, 0.0001)
     ypoints = funkcja.wartos_w_punkcie_x(xpoints)
     x_b = [x0_b]
@@ -378,9 +410,9 @@ def wyswietl_wyniki(funkcja: Funkcja, poczatek: float, koniec: float, iteracje: 
     plt.plot(xpoints, ypoints)
     plt.axhline(y=0, color='k').set_linewidth(0.5)
     plt.axvline(x=0, color='k').set_linewidth(0.5)
-    plt.plot(x_b, y, label='x0 bisekcja', marker="o", markerfacecolor="red")
-    plt.plot(x_f, y, label='x0 regula falsi', marker="o", markerfacecolor="green")
-    plt.title(funkcja.get_nazwa())
+    plt.plot(x_b, y, label='x0 bisekcja', marker="x", markersize=14, markerfacecolor="red")
+    plt.plot(x_f, y, label='x0 regula falsi', marker="+", markersize=14, markerfacecolor="green")
+    plt.title(funkcja.get_nazwa() + przedzial)
     plt.xlabel("x")
     plt.ylabel("y")
     plt.legend()
@@ -450,6 +482,15 @@ def zatwierdz_przedzial(funkcja: Funkcja, poczatek, koniec):
        wybor_kryterium(funkcja, float_poczatek, float_koniec)
 
 def podaj_przedzial(funkcja: Funkcja):
+    xpoints = np.arange(-10, 10, 0.001)
+    ypoints = funkcja.wartos_w_punkcie_x(xpoints)
+    plt.plot(xpoints, ypoints)
+    plt.axhline(y=0, color='k').set_linewidth(0.5)
+    plt.axvline(x=0, color='k').set_linewidth(0.5)
+    plt.title("Wykres funkcji:\n" + funkcja.get_nazwa())
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.show()
     clear_window()
     l = tk.Label(window, bg='white', width=50, text='Podaj granice przedziału', font=('Helvetica bold', 14))
     l.pack()
@@ -487,9 +528,9 @@ def zatwierdz_wybor_zlozenia(zestaw_funkcji, var_gf, var_fg, f1, f2, var_cos):
             zlozenie = Zlozenie(wielomian, wykladnicza)
     elif (zestaw_funkcji == 2):
         float_f1 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        for i in f1:
-            if (len(f1[i-1]) != 0):
-                float_f1[i-1] = float(f1[i-1])
+        for i in range(0, 7):
+            if (len(f1[i]) != 0):
+                float_f1[i] = float(f1[i])
         wielomian = Wielomian(float_f1)
         if (var_cos == 1):
             trygonometryczna = Cosinus(float(f2[0]), float(f2[1]))
@@ -579,7 +620,7 @@ def wybor_zlozenie(zestaw_funkcji):
         frame_trygonometryczna.pack(anchor='w')
         button_zatwierdz_wybor_zlozenia = tk.Button(window, text='ZATWIERDŹ', font=('Helvetica bold', 12),
                                                 command= lambda: zatwierdz_wybor_zlozenia(zestaw_funkcji, var_gf.get(), var_fg.get(),
-                                                                                          [ws6.get(), ws5.get(), ws4.get(), ws3.get(), ws2.get(), ws1.get(), ws0.get()]
+                                                                                          [ws6.get(), ws5.get(), ws4.get(), ws3.get(), ws2.get(), ws1.get(), ws0.get()],
                                                                                           [wsx_trygonometryczna.get(), wsf.get()], var_cos.get()))
     else:
         wykladnicza_fg.config(text="f(x) = ")
